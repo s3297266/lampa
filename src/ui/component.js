@@ -4,22 +4,22 @@ var createRenderers = require('./renderers');
 var player = require('./player');
 
 function RezkaComponent(object) {
-  var card   = object.card;
-  var html   = $('<div class="rezka-wrap"></div>');
-  var search_query = (card.original_title || card.title || '').toLowerCase();
+  var movie = object.movie || {};
+  var html = $('<div class="rezka-wrap"></div>');
+  var search_query = (object.search_one || object.search || movie.title || movie.original_title || '').toLowerCase();
 
   var loader = $('<div class="broadcast__scan"><div></div></div>');
   html.append(loader);
 
   var state = {
-    results   : [],
-    selected  : null,
-    rezka     : null,
+    results: [],
+    selected: null,
+    rezka: null,
     translators: [],
-    seasons   : [],
-    episodes  : [],
+    seasons: [],
+    episodes: [],
     curTranslator: null,
-    curSeason : null,
+    curSeason: null,
   };
 
   function showError(msg) {
@@ -33,9 +33,9 @@ function RezkaComponent(object) {
 
     api.fetchGet(item.url).then(function (pageHtml) {
       state.selected = item;
-      state.rezka    = parser.parsePage(pageHtml);
+      state.rezka = parser.parsePage(pageHtml);
       state.translators = state.rezka.translators;
-      state.seasons     = state.rezka.seasons;
+      state.seasons = state.rezka.seasons;
       state.curTranslator = state.translators[0] || { id: '0', name: 'Авто' };
 
       if (state.rezka.isSeries) {
@@ -53,7 +53,7 @@ function RezkaComponent(object) {
     html.empty();
     html.append('<div class="broadcast__scan"><div></div></div>');
 
-    var r  = state.rezka;
+    var r = state.rezka;
     var tid = state.curTranslator.id;
 
     api.getEpisodes(r.titleId, tid, season.id).then(function (eps) {
@@ -65,14 +65,14 @@ function RezkaComponent(object) {
   }
 
   function playMovie() {
-    player.playMovie(state, html, showError, card);
+    player.playMovie(state, html, showError, movie);
   }
 
   function playEpisode(ep) {
-    player.playEpisode(state, html, showError, ep, card);
+    player.playEpisode(state, html, showError, ep, movie);
   }
 
-  var renderers = createRenderers(html, state, card, loadTitle, loadSeason, playEpisode, showError);
+  var renderers = createRenderers(html, state, movie, loadTitle, loadSeason, playEpisode, showError);
 
   api.searchRezka(search_query).then(function (items) {
     state.results = items;
@@ -91,10 +91,10 @@ function RezkaComponent(object) {
   });
 
   this.render = function () { return html; };
-  this.start  = function () { Lampa.Controller.enable('content'); };
-  this.pause  = function () {};
-  this.stop   = function () {};
-  this.destroy= function () { html.remove(); };
+  this.start = function () { Lampa.Controller.enable('content'); };
+  this.pause = function () {};
+  this.stop = function () {};
+  this.destroy = function () { html.remove(); };
 }
 
 module.exports = RezkaComponent;

@@ -1,49 +1,44 @@
 var config = require('./config');
 var RezkaComponent = require('./ui/component');
 
-function addButton() {
+function startPlugin() {
+  if (window.plugin_hdrezka_ready) return;
+  window.plugin_hdrezka_ready = true;
+
+  Lampa.Component.add('rezka', RezkaComponent);
+
+  var button = '<div class="full-start__button selector view--rezka">'
+    + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">'
+    + '<path d="M8 5v14l11-7z"/>'
+    + '</svg>'
+    + '<span>' + config.PLUGIN + '</span>'
+    + '</div>';
+
   Lampa.Listener.follow('full', function (e) {
     if (e.type !== 'complite') return;
 
-    var button = $('<div class="full-start selector" style="margin-left:0.5em;">'
-      + '<svg height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
-      + '<span style="margin-left:0.3em;">' + config.PLUGIN + '</span>'
-      + '</div>');
+    var btn = $(button);
 
-    button.on('click', function () {
+    btn.on('hover:enter', function () {
       Lampa.Activity.push({
-        url      : '',
-        title    : config.PLUGIN,
+        url: '',
+        title: config.PLUGIN,
         component: 'rezka',
-        card     : e.object.card,
-        page     : 1
+        search: e.data.movie.title,
+        search_one: e.data.movie.title,
+        search_two: e.data.movie.original_title,
+        movie: e.data.movie,
+        page: 1
       });
     });
 
-    var watchBtn = e.object.activity.render().find('.full-start').first();
-    if (watchBtn.length) {
-      watchBtn.after(button);
-    } else {
-      e.object.activity.render().find('.full-details').append(button);
-    }
+    e.object.activity.render().find('.view--torrent').after(btn);
   });
-}
-
-function startPlugin() {
-  if (window[config.PLUGIN + '_ready']) return;
-  window[config.PLUGIN + '_ready'] = true;
-
-  Lampa.Component.add('rezka', RezkaComponent);
-  addButton();
 
   console.log('[' + config.PLUGIN + '] Плагін завантажено ✓');
 }
 
-function init() {
-  if (typeof Lampa === 'undefined') {
-    return setTimeout(init, 100);
-  }
-
+if (typeof Lampa !== 'undefined') {
   if (window.appready) {
     startPlugin();
   } else {
@@ -52,5 +47,3 @@ function init() {
     });
   }
 }
-
-init();
