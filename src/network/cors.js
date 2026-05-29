@@ -1,4 +1,4 @@
-var corsOk = true;
+var corsOk = false;
 
 module.exports = {
   isCorsOk: function () { return corsOk; },
