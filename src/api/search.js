@@ -3,7 +3,12 @@ var network = require('../network');
 
 function searchRezka(query) {
   var url = config.SITE + '/search/?do=search&subaction=search&q=' + encodeURIComponent(query);
+  console.log('[HDRezka] Search URL:', url);
+  
   return network.fetchGet(url).then(function (html) {
+    console.log('[HDRezka] Search response length:', html.length);
+    console.log('[HDRezka] Search response preview:', html.substring(0, 500));
+    
     var d = new DOMParser().parseFromString(html, 'text/html');
     var items = [];
     d.querySelectorAll('.b-content__inline_item').forEach(function (el) {
@@ -19,6 +24,7 @@ function searchRezka(query) {
         url   : a.href
       });
     });
+    console.log('[HDRezka] Parsed items:', items.length);
     return items;
   });
 }
