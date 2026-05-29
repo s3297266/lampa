@@ -10,12 +10,6 @@ const buildOptions = {
   outfile: 'dist/plugin.js',
   format: 'iife',
   target: ['es5'],
-  banner: {
-    js: '(function () {\n  "use strict";'
-  },
-  footer: {
-    js: '})();'
-  },
 };
 
 if (isWatch) {

@@ -1,13 +1,7 @@
 var config = require('./config');
 var RezkaComponent = require('./ui/component');
 
-function register() {
-  if (typeof Lampa === 'undefined') {
-    return setTimeout(register, 300);
-  }
-
-  Lampa.Component.add('rezka', RezkaComponent);
-
+function addButton() {
   Lampa.Listener.follow('full', function (e) {
     if (e.type !== 'complite') return;
 
@@ -33,12 +27,30 @@ function register() {
       e.object.activity.render().find('.full-details').append(button);
     }
   });
+}
+
+function startPlugin() {
+  if (window[config.PLUGIN + '_ready']) return;
+  window[config.PLUGIN + '_ready'] = true;
+
+  Lampa.Component.add('rezka', RezkaComponent);
+  addButton();
 
   console.log('[' + config.PLUGIN + '] Плагін завантажено ✓');
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', register);
-} else {
-  register();
+function init() {
+  if (typeof Lampa === 'undefined') {
+    return setTimeout(init, 100);
+  }
+
+  if (window.appready) {
+    startPlugin();
+  } else {
+    Lampa.Listener.follow('app', function (e) {
+      if (e.type === 'ready') startPlugin();
+    });
+  }
 }
+
+init();
